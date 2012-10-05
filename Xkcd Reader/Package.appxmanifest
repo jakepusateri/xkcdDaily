@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
+  <Identity Name="23751JakePusateri.xkcdDaily" Publisher="CN=C3470738-07AF-4C7C-838F-D433388E607A" Version="1.0.0.1" />
+  <Properties>
+    <DisplayName>xkcd Daily</DisplayName>
+    <PublisherDisplayName>Jake Pusateri</PublisherDisplayName>
+    <Logo>50x50.png</Logo>
+  </Properties>
+  <Prerequisites>
+    <OSMinVersion>6.2.1</OSMinVersion>
+    <OSMaxVersionTested>6.2.1</OSMaxVersionTested>
+  </Prerequisites>
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Xkcd_Reader.App">
+      <VisualElements DisplayName="xkcd Daily" Logo="150x150.png" SmallLogo="30x30.png" Description="xkcd Daily lets you view xkcd comics." ForegroundText="dark" BackgroundColor="#3EC1F1" ToastCapable="false">
+        <DefaultTile ShowName="noLogos" WideLogo="310x150.png" ShortName="xkcd daily" />
+        <SplashScreen Image="620x300.png" BackgroundColor="#3EC1F1" />
+      </VisualElements>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>
