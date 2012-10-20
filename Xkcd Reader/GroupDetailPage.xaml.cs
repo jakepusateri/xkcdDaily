@@ -104,29 +104,27 @@ namespace Xkcd_Reader
                         this.DefaultViewModel["Items"] = group.Items;
                     else
                         this.DefaultViewModel["Items"] = group.Items.OrderByDescending(s => s.UniqueId);
+
+
+                    if (group.UniqueId == "Favorites")
+                    {
+                        this.errorBox.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                        this.gotobutton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                        this.Numberbox.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        this.errorBox.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                        this.gotobutton.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                        this.Numberbox.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                    }
+
+
                 }
                 else
                 {
-                    await SampleDataSource.addMostRecentComic();
-                    this.DefaultViewModel["Group"] = group;
-                    this.DefaultViewModel["Items"] = group.Items;
+                    this.Frame.GoBack();
                 }
-
-                if (group.UniqueId == "Favorites")
-                {
-                    this.errorBox.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                    this.gotobutton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                    this.Numberbox.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                }
-                else
-                {
-                    this.errorBox.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                    this.gotobutton.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                    this.Numberbox.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                }
-
-            
-            
         }
  
 
@@ -373,12 +371,19 @@ namespace Xkcd_Reader
             foreach (var x in y)
             {
                 SampleDataItem i = x as SampleDataItem;
+                
                 var f = SampleDataSource.GetGroup("Favorites");
                 i.isFav = false;
+                
+                var m = SampleDataSource.GetGroup("XKCD").getIfExists(i.UniqueId.Trim());
+                m.isFav = false;
 
-                f.Items.Remove(f.getIfExists((i.UniqueId+" ")));
-
+                //var r = f.getIfExists((i.UniqueId ));
+                var ff = f.Items;
+                ff.Remove(i);
+                
             }
+            this.itemListView.SelectedItems.Clear();
             
             
             

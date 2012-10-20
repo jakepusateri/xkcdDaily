@@ -114,7 +114,7 @@ namespace Xkcd_Reader.Data
     /// <summary>
     /// Generic item data model.
     /// </summary>
-    public class SampleDataItem : SampleDataCommon
+    public class SampleDataItem : SampleDataCommon ,INotifyPropertyChanged
     {
         public SampleDataItem(String uniqueId, String title, String subtitle, String imagePath, String description, String content, SampleDataGroup group, string osi)
             : base(uniqueId, title, subtitle, imagePath, description)
@@ -148,9 +148,21 @@ namespace Xkcd_Reader.Data
         public bool isFav
         {
             get { return this._isFav; }
-            set { this.SetProperty(ref this._isFav, value); }
+            set { this.SetProperty(ref this._isFav, value);
+            NotifyPropertyChanged("isFav");
+            }
         }
-        
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(String info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
     }
 
     /// <summary>
@@ -165,7 +177,8 @@ namespace Xkcd_Reader.Data
         }
 
 
-        public class comicItems : IncrementalLoadingCollection<SampleDataItem>
+        //TODO: Objects aren't removed when remove many is called in favorites until the page is refreshed through navigation
+        public class comicItems : IncrementalLoadingCollection<SampleDataItem> 
         {
             public async override Task<IEnumerable<SampleDataItem>> PullDataAsync(uint count)
             {
@@ -177,16 +190,16 @@ namespace Xkcd_Reader.Data
             
             
         }
-        
+        //public for remove?
         private comicItems _items = new comicItems();
-        public comicItems Items 
+        public comicItems Items
         {
             get { return this._items; }
+            set { this._items = value; }
         }
         public bool isLoading
         {
-            get { return this._items.IsLoadingData; }
-            
+            get { return this._items.IsLoadingData; }            
         }
         
         public SampleDataItem getIfExists(string num)
@@ -466,7 +479,7 @@ namespace Xkcd_Reader.Data
 
 
 
-                        SampleDataItem newcomic = new SampleDataItem(num.ToString(), title, fulldate, img, transcript, alt, Comics, img);
+                        SampleDataItem newcomic = new SampleDataItem(num.ToString(), title,  fulldate, img, transcript, alt, Comics, img);
                         if (FavoriteManager.isFavorite(num))
                             newcomic.isFav = true;
                         Comics.Items.Insert(0,newcomic);

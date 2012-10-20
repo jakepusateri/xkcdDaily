@@ -282,5 +282,13 @@ namespace Xkcd_Reader
             return unsnapped;
         }
 
+        private void image2xTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            if ((sender as Image).Stretch.CompareTo(Stretch.Uniform) == 0)
+                (sender as Image).Stretch = Stretch.None;
+            else
+                (sender as Image).Stretch = Stretch.Uniform;
+        }
+
     }
 }

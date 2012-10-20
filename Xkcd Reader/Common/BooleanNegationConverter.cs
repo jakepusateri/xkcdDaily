@@ -18,4 +18,16 @@ namespace Xkcd_Reader.Common
             return !(value is bool && (bool)value);
         }
     }
+    public sealed class TextAdder: IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return "Comic # " + value ;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            return new NotImplementedException();
+        }
+    }
 }

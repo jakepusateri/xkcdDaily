@@ -11,14 +11,16 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Page.Resources>
+    <common:LayoutAwarePage.Resources>
+
+        <common:TextAdder x:Key="TextAdder"/>
 
         <!-- Collection of items displayed by this page -->
         <CollectionViewSource
             x:Name="itemsViewSource"
             Source="{Binding Items}"
-            d:Source="{Binding AllGroups[0].Items, Source={d:DesignInstance Type=data:SampleDataSource, IsDesignTimeCreatable=True}}"/>
-    </Page.Resources>
+            d:Source="{Binding AllGroups[0].Items, Source={d:DesignInstance IsDesignTimeCreatable=True, Type=data:SampleDataSource}}"/>
+    </common:LayoutAwarePage.Resources>
     <Page.TopAppBar>
         <AppBar x:Name="topAppBar"
                 Background="{StaticResource XKCDSelectedBrush}">
@@ -95,11 +97,16 @@
                         </Grid.RowDefinitions>
                         <Button Content="&#xE113;" Canvas.ZIndex="2" Foreground="#FFFFC500" Visibility="{Binding Path=isFav, Converter={StaticResource BooleanToVisibilityConverter}}" FontFamily="Segoe UI Symbol" HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent" FontSize="40"/>
                         <StackPanel Grid.Row="0" HorizontalAlignment="Center" >
-                            <TextBlock Style="{StaticResource GroupHeaderTextStyle}" Text="{Binding Title}"/>                                
-                            <TextBlock FontWeight="Normal" Text="{Binding Subtitle}" VerticalAlignment="Center" Style="{StaticResource BasicTextStyle}"/>
-                        </StackPanel>
-                        <Image x:Name="image" Grid.Row="1" Margin="0,20,0,10" Stretch="Uniform" Source="{Binding Image}" AutomationProperties.Name="{Binding Title}"/>
-                        
+                            <TextBlock Style="{StaticResource GroupHeaderTextStyle}" Text="{Binding Title}" HorizontalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock  Text="{Binding UniqueId, Converter={StaticResource TextAdder}}" Style="{StaticResource BasicTextStyle}" FontWeight="Bold" Margin="0,0,10,0" />
+                                <TextBlock FontWeight="Normal" Text="{Binding Subtitle}" VerticalAlignment="Center" Style="{StaticResource BasicTextStyle}"/>
+                                
+                            </StackPanel>
+                        </StackPanel >
+                        <ScrollViewer Grid.Row="1">
+                        <Image x:Name="image" Grid.Row="1" Margin="0,20,0,10" Stretch="None" Source="{Binding Image}" AutomationProperties.Name="{Binding Title}" DoubleTapped="image2xTapped"/>
+                        </ScrollViewer>
                         <TextBlock FontWeight="Normal" Grid.Row="2" Text="{Binding Content}" VerticalAlignment="Center" Style="{StaticResource BasicTextStyle}" HorizontalAlignment="Center"/>
 
                     </Grid>
