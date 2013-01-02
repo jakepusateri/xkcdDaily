@@ -16,6 +16,7 @@ namespace Xkcd_Reader.Common
     /// <summary>
     /// Value converter that translates true to <see cref="Visibility.Visible"/> and false to
     /// <see cref="Visibility.Collapsed"/>.
+    /// Jake doesn't approve of hostile takeovers
     /// </summary>
     public sealed class BooleanToVisibilityConverter : IValueConverter
     {
