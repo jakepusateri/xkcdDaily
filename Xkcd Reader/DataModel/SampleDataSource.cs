@@ -316,8 +316,32 @@ namespace Xkcd_Reader.Data
 
         }
 
-        public static async Task<JsonObject> GetAsync(string uri)
+        public static async Task<JsonObject> GetAsync(string uri, int num)
         {
+            var filename = num + ".json";
+
+            StorageFolder sf = Windows.Storage.ApplicationData.Current.LocalFolder;
+
+            Task<StorageFile> task = GetFileIfExistsAsync(sf, filename);
+            StorageFile file = await task;
+
+            if (file == null)
+            {
+
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("user-agent", "XKCD Daily Win8 Reader");
+                var content = await httpClient.GetStringAsync(uri);
+                return await Task.Run(() => JsonObject.Parse(content));
+            }
+            else
+            {
+                string content = await FileIO.ReadTextAsync(file);
+                return await Task.Run(() => JsonObject.Parse(content));
+            }
+        }
+
+        public static async Task<JsonObject> GetAsync(string uri)
+        {            
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("user-agent", "XKCD Daily Win8 Reader");
             var content = await httpClient.GetStringAsync(uri);
@@ -524,7 +548,7 @@ namespace Xkcd_Reader.Data
         {
             string url = "http://xkcd.com/" + number + "/info.0.json";
 
-            JsonObject json = await GetAsync(url);
+            JsonObject json = await GetAsync(url, number);
 
             string month = json.GetNamedString("month");
             int num = (int)json.GetNamedNumber("num");
@@ -537,6 +561,9 @@ namespace Xkcd_Reader.Data
             string img = json.GetNamedString("img");
             string title = json.GetNamedString("title");
             string day = json.GetNamedString("day");
+            
+            if (!transcript.Equals(""))
+                await DownloadJSON(url, number);
 
             //localize?
             string fulldate = month + "/" + day + "/" + year;
@@ -620,36 +647,42 @@ namespace Xkcd_Reader.Data
         //a caching function. downloads and image if and returns whether it hasn't already been downloaded
         
         //TODO: Error handling including non-200 response header and lack of internet
-        private static async Task<String> DownloadJSON(string url, int num)
+        private static async Task<bool> DownloadJSON(string url, int num)
         {
-            var filename = num.ToString() + ".json";
-            StorageFolder sf = Windows.Storage.ApplicationData.Current.LocalFolder;
 
-            Task<StorageFile> task = GetFileIfExistsAsync(sf, filename);
-            StorageFile file = await task;            
-            if (file == null)
+            var client = new HttpClient();
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, new Uri(url));
+            var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            if (response.IsSuccessStatusCode)
             {
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Add("user-agent", "XKCD Daily Win8 Reader");
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, new Uri(url));
-                var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
+                var filename = num + ".json";
 
-                var imageFile = await sf.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting); 
-                var fs = await imageFile.OpenAsync(FileAccessMode.ReadWrite);
-                var writer = new DataWriter(fs.GetOutputStreamAt(0));
-                writer.WriteBytes(await response.Content.ReadAsByteArrayAsync());
+                StorageFolder sf = Windows.Storage.ApplicationData.Current.LocalFolder;
 
-                await writer.StoreAsync();
-                writer.DetachStream();
-                await fs.FlushAsync();
+                Task<StorageFile> task = GetFileIfExistsAsync(sf, filename);
+                StorageFile file = await task;
+
+                if (file == null)
+                {
+                    var imageFile = await sf.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
+                    var fs = await imageFile.OpenAsync(FileAccessMode.ReadWrite);
+                    var writer = new DataWriter(fs.GetOutputStreamAt(0));
+                    writer.WriteBytes(await response.Content.ReadAsByteArrayAsync());
+                    await writer.StoreAsync();
+                    writer.DetachStream();
+                    await fs.FlushAsync();
+                    return true;
+                }
+                else
+                    return false;
 
             }
+            return true; //actually an error
 
-
-            return await Windows.Storage.FileIO.ReadTextAsync(file);
         }
-            
+        
+   
         
         private static async Task<bool> Download(string url, int num)
         {
